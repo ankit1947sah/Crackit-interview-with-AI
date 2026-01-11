@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ community.name }} | Crackit AI Community</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+            --glass: rgba(30, 41, 59, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .community-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-top: 2rem;
+        }
+
+        .community-header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .community-header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        /* Chat Form */
+        .chat-form-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .chat-form textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            padding: 1rem;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .chat-form textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--text-main);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Feed */
+        .post-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s;
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .post-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .post-meta {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .post-content {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            white-space: pre-wrap;
+        }
+
+        .post-image {
+            max-width: 100%;
+            border-radius: 12px;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .post-file {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 0.8rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--accent);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+            border: 1px solid rgba(6, 182, 212, 0.2);
+        }
+
+        .post-file:hover {
+            background: rgba(6, 182, 212, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .community-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <div class="nav-content">
+            <a href="/" class="brand">Crackit AI</a>
+            <div class="user-info">
+                <span>{{ user.username }}</span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <header class="community-header">
+            <h1>{{ community.name }}</h1>
+            <p>{{ community.description }}</p>
+        </header>
+
+        <section class="chat-form-card">
+            <form action="." method="POST" enctype="multipart/form-data" class="chat-form">
+                {% csrf_token %}
+                <textarea name="content" placeholder="Share your thoughts or ask a question..."></textarea>
+                <div class="form-actions">
+                    <label class="btn btn-outline">
+                        📷 Photo
+                        <input type="file" name="image" accept="image/*" style="display:none;">
+                    </label>
+                    <label class="btn btn-outline">
+                        📎 File
+                        <input type="file" name="file" style="display:none;">
+                    </label>
+                    <button type="submit" class="btn btn-primary" style="margin-left:auto;">Post to Community</button>
+                </div>
+            </form>
+        </section>
+
+        <div class="feed">
+            {% for post in posts %}
+            <article class="post-card">
+                <div class="post-header">
+                    <div class="user-info">
+                        <div class="post-avatar">{{ post.user.username|make_list|first|upper }}</div>
+                        <div>
+                            <div style="font-weight:600;">{{ post.user.username }}</div>
+                            <div class="post-meta">{{ post.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="post-content">{{ post.content }}</div>
+
+                {% if post.image %}
+                <img src="{{ post.image.url }}" class="post-image" alt="Post Image">
+                {% endif %}
+
+                {% if post.file %}
+                <a href="{{ post.file.url }}" class="post-file" download>
+                    <span>📄</span>
+                    <span>Download Attachment</span>
+                </a>
+                {% endif %}
+            </article>
+            {% empty %}
+            <div style="text-align:center; color:var(--text-muted); padding: 3rem;">
+                No discussions yet. Be the first to start the conversation!
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Simple file selected feedback
+        document.querySelectorAll('input[type="file"]').forEach(input => {
+            input.addEventListener('change', function () {
+                if (this.files && this.files.length > 0) {
+                    const label = this.parentElement;
+                    const originalText = label.innerText;
+                    label.innerHTML = `✅ ${this.files[0].name.substring(0, 10)}...`;
+                    label.style.borderColor = 'var(--success)';
+                    label.style.color = 'var(--success)';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
