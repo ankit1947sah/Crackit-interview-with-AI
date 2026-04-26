@@ -714,6 +714,73 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* === Resume Truth Detector === */
+        .rt-upload-zone {
+            border: 2px dashed rgba(139, 92, 246, 0.4);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(139, 92, 246, 0.05);
+            position: relative;
+        }
+        .rt-upload-zone:hover, .rt-upload-zone.dragover {
+            border-color: var(--secondary);
+            background: rgba(139, 92, 246, 0.12);
+            transform: translateY(-2px);
+        }
+        .rt-upload-zone .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .rt-upload-zone input[type="file"] {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; cursor: pointer;
+        }
+        .rt-results { display: none; margin-top: 2rem; animation: fadeInUp 0.5s ease; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .rt-score-ring {
+            width: 140px; height: 140px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 1rem; position: relative;
+        }
+        .rt-score-ring svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+        .rt-score-ring .score-text { font-size: 2rem; font-weight: 700; z-index: 1; }
+        .rt-score-ring .score-label { font-size: 0.75rem; color: var(--text-muted); z-index: 1; margin-top: -4px; }
+
+        .rt-skills-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .rt-skill-badge {
+            padding: 0.35rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;
+            background: rgba(6, 182, 212, 0.15); color: var(--accent); border: 1px solid rgba(6, 182, 212, 0.3);
+            transition: all 0.3s;
+        }
+        .rt-skill-badge:hover { background: rgba(6, 182, 212, 0.25); transform: scale(1.05); }
+
+        .rt-buzzword-tag {
+            padding: 0.3rem 0.75rem; border-radius: 20px; font-size: 0.75rem;
+            background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .rt-question-item {
+            background: rgba(30, 41, 59, 0.6); border-radius: 12px; padding: 1.2rem;
+            margin-bottom: 0.8rem; border: 1px solid rgba(255,255,255,0.05);
+            transition: all 0.3s;
+        }
+        .rt-question-item:hover { border-color: var(--primary); }
+        .rt-question-item .q-skill { font-size: 0.75rem; color: var(--accent); font-weight: 600; margin-bottom: 0.3rem; }
+
+        .rt-panel { background: var(--bg-card); padding: 1.5rem; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); }
+        .rt-panel h3 { margin-bottom: 1rem; font-size: 1.1rem; }
+
+        .rt-loader {
+            display: none; text-align: center; padding: 3rem;
+        }
+        .rt-loader .spinner {
+            width: 50px; height: 50px; border: 4px solid rgba(139,92,246,0.2);
+            border-top-color: var(--secondary); border-radius: 50%;
+            animation: rtSpin 0.8s linear infinite; margin: 0 auto 1rem;
+        }
+        @keyframes rtSpin { to { transform: rotate(360deg); } }
     </style>
 </head>
 
@@ -789,6 +856,7 @@
                 <li><a href="#demo">Demo</a></li>
                 <li><a href="#practice">Practice</a></li>
                 <li><a href="#news">News</a></li>
+                <li><a href="#resume-truth">Resume Truth</a></li>
                 {% if user.is_authenticated %}
                 <li style="display: flex; align-items: center; gap: 1rem;">
                     <button class="btn btn-outline" style="padding: 0.5rem 1.2rem;" onclick="toggleProfile()">
@@ -997,20 +1065,20 @@
                     <ul class="pyq-list">
                         <li>
                             TCS PYQ
-                            <a href="{% static 'interviews/pyq/tcs_pyq_2022.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1-AQq9Yoz-v5Y7GCvNLrh63LE6tbVGr9z/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             TCS PYQ
-                            <a href="{% static 'interviews/pyq/tcs_pyq_2023.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1csIv4pncmA6bk5bijh8DWPWxfpPBaVT8/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             TCS PYQ
-                            <a href="{% static 'interviews/pyq/tcs_practice.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1sFok3J_xSp8O3XXXqjbrzLqEUiAKfoO1/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
@@ -1034,20 +1102,20 @@
                     <ul class="pyq-list">
                         <li>
                             Infosys PYQ
-                            <a href="{% static 'interviews/pyq/infosys_pyq_1.pdf' %}" download class="download-btn"
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1sFok3J_xSp8O3XXXqjbrzLqEUiAKfoO1/view?usp=drivesdk"
+                                download class="download-btn" onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Infosys PYQ
-                            <a href="{% static 'interviews/pyq/infosys_pyq_2.pdf' %}" download class="download-btn"
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1sFok3J_xSp8O3XXXqjbrzLqEUiAKfoO1/view?usp=drivesdk"
+                                download class="download-btn" onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Infosys PYQ
-                            <a href="{% static 'interviews/pyq/infosys_class_notes.pdf' %}" download
-                                class="download-btn" onclick="event.stopPropagation()">Download</a>
+                            <a href=" https://drive.google.com/file/d/1sFok3J_xSp8O3XXXqjbrzLqEUiAKfoO1/view?usp=drivesdk"
+                                download class="download-btn" onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
@@ -1070,20 +1138,20 @@
                     <ul class="pyq-list">
                         <li>
                             Deloitte PYQ
-                            <a href="{% static 'interviews/pyq/deloitte_pyq_1.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1H2QlitzzYWNLdkkqlit_FEwTAyfqbt2q/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Deloitte PYQ
-                            <a href="{% static 'interviews/pyq/deloitte_pyq_2.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1wWLBgSgZdOG1PHZnOc1YnJ-4uF53B89K/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Deloitte PYQ
-                            <a href="{% static 'interviews/pyq/deloitte_practice.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1wWLBgSgZdOG1PHZnOc1YnJ-4uF53B89K/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
@@ -1106,20 +1174,20 @@
                     <ul class="pyq-list">
                         <li>
                             Accenture PYQ
-                            <a href="{% static 'interviews/pyq/accenture_pyq_1.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://docs.google.com/document/d/1ot-LYGJIV_G5NJNIIUX_9Fhel-PIZA1v/edit?usp=drivesdk&ouid=114622760179301351513&rtpof=true&sd=true"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Accenture PYQ
-                            <a href="{% static 'interviews/pyq/accenture_pyq_2.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1h_7BvXDBXlsjlI6og-PUuDZAwHBvloer/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             Accenture pyq
-                            <a href="{% static 'interviews/pyq/accenture_pyq_3.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1H2QlitzzYWNLdkkqlit_FEwTAyfqbt2q/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
@@ -1143,35 +1211,35 @@
                     <ul class="pyq-list">
                         <li>
                             IBM PYQ
-                            <a href="{% static 'interviews/pyq/ibm_pyq_1.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1sFok3J_xSp8O3XXXqjbrzLqEUiAKfoO1/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             IBM PYQ
-                            <a href="{% static 'interviews/pyq/ibm_pyq_2.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1MN46fIQ8a58ZYTgoxy-OnKQW_6mexJgG/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
                             IBM PYQ
-                            <a href="{% static 'interviews/pyq/ibm_pyq_3.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            <a href="https://drive.google.com/file/d/1aJx-AWj9aVajf0QDyxkpK5dfEfDOzVNo/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
             </div>
 
 
-            <!-- Google Card -->
+            <!-- Wipro Card -->
             <div class="card practice-card" onclick="togglePracticeCard(this)">
                 <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                    <h3>🏢 Google</h3>
+                    <h3>🏢 Wipro</h3>
                     <span class="badge" style="font-size:0.7rem;">SDE-1/2</span>
                 </div>
 
                 <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
-                    Google PYQ Question
+                    Wipro PYQ Question
                 </p>
 
                 <div class="expand-hint">View PYQs ↓</div>
@@ -1179,21 +1247,21 @@
                 <div class="question-list">
                     <ul class="pyq-list">
                         <li>
-                            Google PYQ
-                            <a href="{% static 'interviews/pyq/google_pyq_2022.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            Wipro PYQ
+                            <a href="https://drive.google.com/file/d/1-JPsqN81_SqIApV2XSRtDmRZAwkOO-kX/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
-                            Google PYQ
-                            <a href="{% static 'interviews/pyq/google_pyq_2023.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            Wipro PYQ
+                            <a href="https://drive.google.com/file/d/1aJx-AWj9aVajf0QDyxkpK5dfEfDOzVNo/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
 
                         <li>
-                            Google PYQ
-                            <a href="{% static 'interviews/pyq/google_practice.pdf' %}" download
-                                onclick="event.stopPropagation()">Download</a>
+                            Wipro PYQ
+                            <a href="https://drive.google.com/file/d/1-JPsqN81_SqIApV2XSRtDmRZAwkOO-kX/view?usp=drivesdk"
+                                download onclick="event.stopPropagation()">Download</a>
                         </li>
                     </ul>
                 </div>
@@ -1271,6 +1339,87 @@
         </div>
     </section>
 
+    <!-- Resume Truth Detector Section -->
+    <section id="resume-truth" class="container">
+        <h2 class="section-title">📄 Resume Truth Detector</h2>
+        <p style="text-align:center; color:var(--text-muted); margin-top:-2rem; margin-bottom:2.5rem; max-width:600px; margin-left:auto; margin-right:auto;">
+            Upload your resume and get an instant AI-powered trust analysis, skill extraction, and targeted interview questions.
+        </p>
+
+        <!-- Upload Zone -->
+        <div class="rt-upload-zone" id="rtUploadZone" style="max-width:600px; margin:0 auto;">
+            <div class="upload-icon">📤</div>
+            <h3 style="margin-bottom:0.5rem;">Drop your Resume here</h3>
+            <p style="color:var(--text-muted); font-size:0.9rem;">or click to browse — Supports <strong>.pdf</strong> and <strong>.docx</strong></p>
+            <input type="file" id="rtFileInput" accept=".pdf,.docx,.doc">
+            <p id="rtFileName" style="margin-top:1rem; color:var(--accent); font-weight:600; display:none;"></p>
+        </div>
+
+        <div style="text-align:center; margin-top:1.5rem;">
+            <button class="btn btn-primary" id="rtAnalyzeBtn" onclick="analyzeResume()" style="display:none;">🔍 Analyze Resume</button>
+        </div>
+
+        <!-- Loader -->
+        <div class="rt-loader" id="rtLoader">
+            <div class="spinner"></div>
+            <p style="color:var(--text-muted);">Analyzing your resume...</p>
+        </div>
+
+        <!-- Results Dashboard -->
+        <div class="rt-results" id="rtResults">
+            <div class="grid" style="grid-template-columns: 1fr 2fr; gap:1.5rem; margin-bottom:1.5rem;">
+                <!-- Trust Score Panel -->
+                <div class="rt-panel" style="text-align:center;">
+                    <h3>🛡️ Trust Score</h3>
+                    <div class="rt-score-ring" id="rtScoreRing">
+                        <svg viewBox="0 0 140 140">
+                            <circle cx="70" cy="70" r="62" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="10"/>
+                            <circle id="rtScoreCircle" cx="70" cy="70" r="62" fill="none" stroke="var(--success)" stroke-width="10"
+                                stroke-dasharray="389.56" stroke-dashoffset="389.56" stroke-linecap="round"
+                                style="transition: stroke-dashoffset 1.5s ease, stroke 0.5s;"/>
+                        </svg>
+                        <div style="display:flex; flex-direction:column; align-items:center;">
+                            <span class="score-text" id="rtScoreValue">--</span>
+                            <span class="score-label">TRUST</span>
+                        </div>
+                    </div>
+                    <p id="rtSummaryText" style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;"></p>
+                    <div style="margin-top:1rem;">
+                        <span id="rtMetricsBadge" style="display:none;" class="rt-skill-badge">📊 Has Metrics</span>
+                    </div>
+                </div>
+
+                <!-- Extracted Skills Panel -->
+                <div class="rt-panel">
+                    <h3>🧠 Extracted Skills</h3>
+                    <div class="rt-skills-grid" id="rtSkillsGrid">
+                        <!-- Skills populated by JS -->
+                    </div>
+
+                    <div id="rtBuzzwordsSection" style="display:none; margin-top:1.5rem;">
+                        <h3 style="color:#ef4444;">⚠️ Flagged Buzzwords</h3>
+                        <div class="rt-skills-grid" id="rtBuzzwordsGrid" style="margin-top:0.5rem;">
+                            <!-- Buzzwords populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Questions Panel -->
+            <div class="rt-panel">
+                <h3>🎯 AI-Generated Interview Questions</h3>
+                <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:1rem;">Based on the skills found in your resume, prepare for these deep-dive questions:</p>
+                <div id="rtQuestionsContainer">
+                    <!-- Questions populated by JS -->
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-top:2rem;">
+                <button class="btn btn-outline" onclick="resetResumeAnalysis()">🔄 Analyze Another Resume</button>
+            </div>
+        </div>
+    </section>
+
     <footer>
         <div class="container" style="padding:40px 10%; background:#020617; border-top:1px solid #1e293b;">
             <div class="grid"
@@ -1326,8 +1475,9 @@
                         style="width: 100%; padding: 10px; font-size: 1rem;">Send Feedback</button>
                 </form>
             </div>
-            <p style="text-align:center; margin-top:40px; color:#94a3b8;">© 2026 AI Developer The Website. All rights
-                reserved.</p>
+            <p style="text-align:center; margin-top:40px; color:#94a3b8;">Developed by Ankit <br>
+
+                Hope this innovation supports every student in cracking interviews and excelling in their placement journey.</p>
         </div>
     </footer>
 
@@ -1940,6 +2090,156 @@
                 });
                 card.classList.add('expanded');
             }
+        }
+
+        // ===== Resume Truth Detector JS =====
+        let rtSelectedFile = null;
+
+        // File input handler
+        document.getElementById('rtFileInput').addEventListener('change', function(e) {
+            if (e.target.files.length > 0) {
+                rtSelectedFile = e.target.files[0];
+                document.getElementById('rtFileName').textContent = '📎 ' + rtSelectedFile.name;
+                document.getElementById('rtFileName').style.display = 'block';
+                document.getElementById('rtAnalyzeBtn').style.display = 'inline-block';
+            }
+        });
+
+        // Drag and drop
+        const rtZone = document.getElementById('rtUploadZone');
+        rtZone.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('dragover'); });
+        rtZone.addEventListener('dragleave', function() { this.classList.remove('dragover'); });
+        rtZone.addEventListener('drop', function(e) {
+            e.preventDefault(); this.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                rtSelectedFile = e.dataTransfer.files[0];
+                document.getElementById('rtFileInput').files = e.dataTransfer.files;
+                document.getElementById('rtFileName').textContent = '📎 ' + rtSelectedFile.name;
+                document.getElementById('rtFileName').style.display = 'block';
+                document.getElementById('rtAnalyzeBtn').style.display = 'inline-block';
+            }
+        });
+
+        function analyzeResume() {
+            if (!rtSelectedFile) { showToast('Please select a file first.'); return; }
+
+            // Show loader, hide results & upload
+            document.getElementById('rtLoader').style.display = 'block';
+            document.getElementById('rtResults').style.display = 'none';
+            document.getElementById('rtAnalyzeBtn').style.display = 'none';
+
+            const formData = new FormData();
+            formData.append('resume_file', rtSelectedFile);
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+            fetch('/api/analyze-resume/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData
+            })
+            .then(async res => {
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'Analysis failed');
+                return data;
+            })
+            .then(data => {
+                document.getElementById('rtLoader').style.display = 'none';
+                renderResumeResults(data);
+                showToast('✅ Resume analyzed successfully!');
+            })
+            .catch(err => {
+                document.getElementById('rtLoader').style.display = 'none';
+                document.getElementById('rtAnalyzeBtn').style.display = 'inline-block';
+                showToast('❌ Error: ' + err.message);
+            });
+        }
+
+        function renderResumeResults(data) {
+            const results = document.getElementById('rtResults');
+            results.style.display = 'block';
+
+            // Trust Score Ring
+            const score = data.trust_score || 0;
+            const circumference = 389.56;
+            const offset = circumference - (circumference * score / 100);
+            const circle = document.getElementById('rtScoreCircle');
+            circle.style.strokeDashoffset = offset;
+            circle.style.stroke = score >= 80 ? 'var(--success)' : score >= 50 ? '#f59e0b' : '#ef4444';
+            document.getElementById('rtScoreValue').textContent = score + '%';
+            document.getElementById('rtSummaryText').textContent = data.summary || '';
+
+            // Metrics badge
+            const metricsBadge = document.getElementById('rtMetricsBadge');
+            if (data.has_metrics) {
+                metricsBadge.style.display = 'inline-block';
+                metricsBadge.textContent = '📊 Has Metrics';
+                metricsBadge.style.background = 'rgba(16,185,129,0.15)';
+                metricsBadge.style.color = 'var(--success)';
+                metricsBadge.style.borderColor = 'rgba(16,185,129,0.3)';
+            } else {
+                metricsBadge.style.display = 'inline-block';
+                metricsBadge.textContent = '⚠️ No Metrics Found';
+                metricsBadge.style.background = 'rgba(245,158,11,0.15)';
+                metricsBadge.style.color = '#f59e0b';
+                metricsBadge.style.borderColor = 'rgba(245,158,11,0.3)';
+            }
+
+            // Skills
+            const skillsGrid = document.getElementById('rtSkillsGrid');
+            skillsGrid.innerHTML = '';
+            if (data.skills && data.skills.length > 0) {
+                data.skills.forEach(skill => {
+                    const badge = document.createElement('span');
+                    badge.className = 'rt-skill-badge';
+                    badge.textContent = skill;
+                    skillsGrid.appendChild(badge);
+                });
+            } else {
+                skillsGrid.innerHTML = '<p style="color:var(--text-muted); font-size:0.85rem;">No technical skills detected.</p>';
+            }
+
+            // Buzzwords
+            const bwSection = document.getElementById('rtBuzzwordsSection');
+            const bwGrid = document.getElementById('rtBuzzwordsGrid');
+            bwGrid.innerHTML = '';
+            if (data.found_buzzwords && data.found_buzzwords.length > 0) {
+                bwSection.style.display = 'block';
+                data.found_buzzwords.forEach(bw => {
+                    const tag = document.createElement('span');
+                    tag.className = 'rt-buzzword-tag';
+                    tag.textContent = '🚩 ' + bw;
+                    bwGrid.appendChild(tag);
+                });
+            } else {
+                bwSection.style.display = 'none';
+            }
+
+            // Questions
+            const qContainer = document.getElementById('rtQuestionsContainer');
+            qContainer.innerHTML = '';
+            if (data.questions && data.questions.length > 0) {
+                data.questions.forEach((q, i) => {
+                    const item = document.createElement('div');
+                    item.className = 'rt-question-item';
+                    item.innerHTML = `
+                        <div class="q-skill">📌 ${q.skill}</div>
+                        <p style="margin:0; font-size:0.95rem;">${q.question}</p>
+                    `;
+                    qContainer.appendChild(item);
+                });
+            }
+        }
+
+        function resetResumeAnalysis() {
+            rtSelectedFile = null;
+            document.getElementById('rtFileInput').value = '';
+            document.getElementById('rtFileName').style.display = 'none';
+            document.getElementById('rtAnalyzeBtn').style.display = 'none';
+            document.getElementById('rtResults').style.display = 'none';
+            document.getElementById('rtLoader').style.display = 'none';
+            document.getElementById('rtScoreCircle').style.strokeDashoffset = '389.56';
+            document.getElementById('rtScoreValue').textContent = '--';
         }
     </script>
     <style>

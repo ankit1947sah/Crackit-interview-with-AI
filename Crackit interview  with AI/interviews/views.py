@@ -155,3 +155,139 @@ def submit_feedback(request):
         return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+import re
+import PyPDF2
+import docx2txt
+import traceback
+
+@csrf_exempt
+def analyze_resume(request):
+    if request.method == 'POST' and request.FILES.get('resume_file'):
+        temp_path = None
+        try:
+            resume = request.FILES['resume_file']
+            file_ext = os.path.splitext(resume.name)[1].lower()
+            text = ""
+
+            # Save to temp file first (required for docx2txt and safer for PyPDF2)
+            temp_dir = os.path.join(settings.MEDIA_ROOT, 'uploads')
+            os.makedirs(temp_dir, exist_ok=True)
+            temp_path = os.path.join(temp_dir, 'temp_resume' + file_ext)
+            with open(temp_path, 'wb+') as f:
+                for chunk in resume.chunks():
+                    f.write(chunk)
+
+            # Extract Text
+            if file_ext == '.pdf':
+                with open(temp_path, 'rb') as f:
+                    pdf_reader = PyPDF2.PdfReader(f)
+                    for page in pdf_reader.pages:
+                        text += page.extract_text() or ""
+            elif file_ext in ['.docx', '.doc']:
+                text = docx2txt.process(temp_path)
+            else:
+                return JsonResponse({'error': 'Unsupported file format. Use .pdf or .docx'}, status=400)
+
+            if not text or not text.strip():
+                text = ""  # Handle empty/scanned PDFs gracefully
+
+            # Heuristic Analysis Engine
+            text_lower = text.lower()
+            
+            # 1. Skill Extraction
+            tech_keywords = {
+                'python': 'Python', 'django': 'Django', 'react': 'React', 'node': 'Node.js', 
+                'express': 'Express', 'mongodb': 'MongoDB', 'sql': 'SQL', 'aws': 'AWS', 
+                'docker': 'Docker', 'kubernetes': 'Kubernetes', 'java': 'Java', 'c++': 'C++',
+                'javascript': 'JavaScript', 'typescript': 'TypeScript', 'git': 'Git', 'html': 'HTML',
+                'css': 'CSS', 'machine learning': 'Machine Learning', 'ai': 'AI', 'data science': 'Data Science',
+                'mern': 'MERN Stack', 'rest api': 'REST APIs', 'graphql': 'GraphQL',
+                'flask': 'Flask', 'spring': 'Spring', 'angular': 'Angular', 'vue': 'Vue.js',
+                'tensorflow': 'TensorFlow', 'pytorch': 'PyTorch', 'pandas': 'Pandas', 'numpy': 'NumPy',
+                'linux': 'Linux', 'azure': 'Azure', 'gcp': 'GCP', 'firebase': 'Firebase',
+                'mysql': 'MySQL', 'postgresql': 'PostgreSQL', 'redis': 'Redis',
+            }
+            extracted_skills = []
+            for kw, proper_name in tech_keywords.items():
+                if kw in text_lower:
+                    extracted_skills.append(proper_name)
+            
+            # 2. Vague Buzzword Detection
+            buzzwords = ['synergized', 'revolutionized', 'leveraged', 'spearheaded', 'thought leader', 'dynamic', 'proactive', 'go-getter', 'detail-oriented', 'hardworking']
+            found_buzzwords = [bw for bw in buzzwords if bw in text_lower]
+            
+            # 3. Metric Detection (Checking for numbers/% indicating concrete achievements)
+            has_metrics = bool(re.search(r'\d+%|\d+x|\$\d+|\d+ users', text_lower))
+            
+            # 4. Generate Questions based on Skills
+            questions = []
+            skill_questions = {
+                'React': "How do you handle state management in large React applications? Can you explain useEffect?",
+                'Python': "What are the key differences between lists and tuples? How does Python manage memory?",
+                'Django': "Explain the MVT architecture in Django. How do you optimize Django ORM queries?",
+                'Node.js': "How does the event loop work in Node.js? How do you handle asynchronous operations?",
+                'MongoDB': "What is the aggregation pipeline in MongoDB? How do you design schemas for NoSQL?",
+                'SQL': "Explain the difference between INNER JOIN and LEFT JOIN. How do you create an index?",
+                'AWS': "Which AWS services have you used? How do you deploy a scalable web app on AWS?",
+                'Docker': "What is the difference between a Docker image and a container? How do you use docker-compose?",
+                'MERN Stack': "How do you structure authentication in a MERN app? Have you deployed one to production?",
+                'JavaScript': "Explain closures, prototypes, and the event loop in JavaScript.",
+                'Java': "What is the difference between JDK, JRE, and JVM? Explain OOP principles in Java.",
+                'TensorFlow': "How do you build and train a neural network using TensorFlow/Keras?",
+                'Flask': "How does Flask differ from Django? When would you choose one over the other?",
+            }
+            
+            for skill in extracted_skills:
+                if skill in skill_questions:
+                    questions.append({
+                        'skill': skill,
+                        'question': skill_questions[skill]
+                    })
+                    if len(questions) >= 5:
+                        break
+            
+            if not questions:
+                questions.append({
+                    'skill': 'General Technical',
+                    'question': "Can you walk me through the most challenging technical problem you've solved?"
+                })
+
+            # 5. Score Calculation
+            trust_score = 100
+            vagueness_penalty = len(found_buzzwords) * 5
+            trust_score -= min(30, vagueness_penalty) # Max 30% penalty for buzzwords
+            
+            if not has_metrics:
+                trust_score -= 20 # 20% penalty for lack of metrics
+                
+            if len(extracted_skills) < 2:
+                trust_score -= 15 # Penalty for too few technical skills mentioned
+                
+            trust_score = max(0, trust_score) # Ensure >= 0
+            
+            # Prepare Response
+            response_data = {
+                'skills': extracted_skills,
+                'trust_score': trust_score,
+                'found_buzzwords': found_buzzwords,
+                'has_metrics': has_metrics,
+                'questions': questions,
+                'summary': f"Found {len(extracted_skills)} technical skills. {'Lacks measurable metrics.' if not has_metrics else 'Includes measurable metrics.'}"
+            }
+            
+            return JsonResponse(response_data)
+            
+        except Exception as e:
+            print(f"RESUME ANALYSIS ERROR: {e}")
+            traceback.print_exc()
+            return JsonResponse({'error': str(e)}, status=500)
+        finally:
+            # Clean up temp file
+            if temp_path and os.path.exists(temp_path):
+                try:
+                    os.remove(temp_path)
+                except:
+                    pass
+    
+    return JsonResponse({'error': 'Invalid request. Send a POST with resume_file.'}, status=400)
